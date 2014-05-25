@@ -1,5 +1,5 @@
 package com.mkyong;
- 
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,68 +7,115 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
- 
-public class GetURLContent {
-	public static void main(String[] args) throws FileNotFoundException, IOException {
-		//save to this filename
-		String fileName = ".";
-		File file = new File(fileName);
-		if (!file.exists()) {
-			file.createNewFile();
-		}
-		
-		PrintWriter writer = new PrintWriter("results", "UTF-8");
+import java.util.ArrayList;
+
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
+public class GetURLContent 
+{
+	
+	public void extractScript(HtmlPage page_content)
+	{
+		final ArrayList<?> script_part = (ArrayList<?>) page_content.getByXPath("//script");
+
+    	String[] script_directive = {
+    			// Mouse Events
+    			"onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup", 
+    			// Keyboard Events
+    			"onkeydown", "onkeypress", "onkeyup", 
+    			// Frame/Object Events
+    			"onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
+    			// Form Events
+    			"onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"};
+
+    	ArrayList inline_script = new ArrayList();
+    	inline_script.addAll(script_part);
+    	//inline_script.addAll(onclick_part);
+    	for (String x : script_directive)
+    	{
+    		final ArrayList<?> part = (ArrayList<?>) page_content.getByXPath("//@" + x);
+    		inline_script.addAll(part);
+    	}
+
+    	for (int i = 0; i < inline_script.size(); i++)
+    	{
+    		System.out.println(inline_script.get(i));
+    	}
+	}
+	
+	public void getHTML() throws IOException
+	{
+		File file = new File("youtube.txt");
+        file.createNewFile();
 		//read the http address from the txt file
-		  try(BufferedReader br2 = new BufferedReader(new FileReader("top10000.txt"))) {
-		        StringBuilder sb = new StringBuilder();
-		        String line = br2.readLine();
-		        //while (line != null) {
-		        for(int i=0;i<10;i++){
-		            sb.append(line);
-		            sb.append(System.lineSeparator());
-		            System.out.println("reading: "+line);
-		            String[] wa=line.split(",");
-		            System.out.println("http://"+wa[1]);	
-		            URL url;
-		 
-		    		try {
-		    			// get URL content
-		    			url = new URL("http://"+wa[1]);
-		    			URLConnection conn = url.openConnection();
-		     
-		    			// open the stream and put it into BufferedReader
-		    			BufferedReader br = new BufferedReader(
-		                                   new InputStreamReader(conn.getInputStream()));
-		     
-		    			String inputLine;
-		    			
-		    			//use FileWriter to write file
-		    			FileWriter fw = new FileWriter(file.getAbsoluteFile());
-		    			BufferedWriter bw = new BufferedWriter(fw);
-		    			writer.println(wa[0]+","+wa[1]);
-		    			while ((inputLine = br.readLine()) != null) {
-		    				bw.write(inputLine);
-							writer.println(inputLine);
-		    				System.out.println(inputLine);
-		    			}		    
-		    			bw.close();
-		    			br.close();
-		    			System.out.println("Done");
-		    			
-		
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		try(BufferedReader br = new BufferedReader(new FileReader("top10000.txt"))) 
+		{
+			StringBuilder sb = new StringBuilder();
+		    String line = br.readLine();
+		    //while (line != null) {
+		    for(int i = 1; i < 2; i++)
+		    {
+	            sb.append(line);
+	            sb.append(System.lineSeparator());
+	            //System.out.println("reading: "+line);
+	            String[] wa=line.split(",");
+	            //System.out.println("http://"+wa[i]);	
+	            //java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(java.util.logging.Level.OFF);
+	            
+	            final WebClient webClient = new WebClient(BrowserVersion.CHROME);		    
+	            //WebClient webClient = new WebClient();
+	            webClient.getOptions().setJavaScriptEnabled(false);
+	            HtmlPage page;
+	            //get html
+				try 
+				{
+					//page = webClient.getPage("http://"+wa[1]);
+					page = webClient.getPage("http://youtube.com");
+					
+					final String pageAsXml = page.asXml();
+					BufferedWriter out = new BufferedWriter(new FileWriter(file));  
+			    	out.write(pageAsXml);
+			    	out.close();
+			    	
+					WebResponse response = page.getWebResponse();
+					
+					// extract inline script
+					System.out.println("~~~~~~~~~ " + wa[1]);
+					extractScript(page);
+					
+					
+					//System.out.println(content);
+					//write the html code into txt file
+					//writer.println(wa[0]+","+wa[1]);
+					//writer.println(content);
+				} catch (FailingHttpStatusCodeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally
+				{		  
+					webClient.closeAllWindows();
+				}
+	        }		      		
 		}
-		   line = br2.readLine();
 	}
+	  //static String webadd;
+	public static void main(String[] args) throws FileNotFoundException, IOException 
+	{
+		GetURLContent getURL = new GetURLContent();
+		getURL.getHTML();
 	}
-		  writer.close();
-}
 }
