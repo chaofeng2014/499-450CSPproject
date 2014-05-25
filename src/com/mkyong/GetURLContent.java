@@ -16,7 +16,7 @@ import java.net.URLConnection;
 public class GetURLContent {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		//save to this filename
-		String fileName = "/Users/hz/Documents/workspace/450InternetSecurity/content/";
+		String fileName = ".";
 		File file = new File(fileName);
 		if (!file.exists()) {
 			file.createNewFile();
