@@ -23,5 +23,6 @@
 	<classpathentry kind="lib" path="/Users/yuchaozh/Documents/jar/htmlunit-2.14/lib/xalan-2.7.1.jar"/>
 	<classpathentry kind="lib" path="/Users/yuchaozh/Documents/jar/htmlunit-2.14/lib/xercesImpl-2.11.0.jar"/>
 	<classpathentry kind="lib" path="/Users/yuchaozh/Documents/jar/htmlunit-2.14/lib/xml-apis-1.4.01.jar"/>
+	<classpathentry kind="lib" path="/Users/yuchaozh/Documents/jar/jsoup-1.7.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

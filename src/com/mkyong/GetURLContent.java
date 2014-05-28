@@ -12,6 +12,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
+import org.jsoup.select.Elements;
+
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.Page;
@@ -21,6 +27,46 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class GetURLContent 
 {
+	public void inline2external(String html, String webpage) throws IOException
+	{
+		// make js and html files
+		
+		File html_file = new File("new_" + webpage.trim() + ".html");
+		BufferedWriter html_out = new BufferedWriter(new FileWriter(html_file));
+		if (!html_file.exists()) 
+		{
+			html_file.createNewFile();
+		}
+		
+		Document doc = Jsoup.parse(html);
+		//System.out.println(doc);
+		//doc.select("[onclick]").attr("id", "asdf");
+		Elements script_src = doc.select("[onclick]");
+		int count = 0;
+		for (Element x : script_src)
+		{
+			// add string type id to onclick
+			x.attr("id", String.valueOf(count));
+			System.out.println(x);
+			count++;
+		}
+		
+		System.out.println(count);
+		System.out.println(doc);
+		// write html into a new file
+		html_out.write(doc.toString());
+		html_out.close();
+	}
+	
+	public void writeJs(String webpage, String func) throws IOException
+	{
+		File js_file = new File(webpage.trim() + "_external.js");
+		BufferedWriter js_out = new BufferedWriter(new FileWriter(js_file));
+		if (!js_file.exists()) 
+		{
+			js_file.createNewFile();
+		}
+	}
 	
 	public void extractScript(HtmlPage page_content)
 	{
@@ -45,15 +91,15 @@ public class GetURLContent
     		inline_script.addAll(part);
     	}
 
-    	for (int i = 0; i < inline_script.size(); i++)
-    	{
-    		System.out.println(inline_script.get(i));
-    	}
+//    	for (int i = 0; i < inline_script.size(); i++)
+//    	{
+//    		System.out.println(inline_script.get(i));
+//    	}
 	}
 	
 	public void getHTML() throws IOException
 	{
-		File file = new File("youtube.txt");
+		File file = new File("facebook_test.txt");
         file.createNewFile();
 		//read the http address from the txt file
 		try(BufferedReader br = new BufferedReader(new FileReader("top10000.txt"))) 
@@ -67,6 +113,7 @@ public class GetURLContent
 	            sb.append(System.lineSeparator());
 	            //System.out.println("reading: "+line);
 	            String[] wa=line.split(",");
+	            String page_title = "facebook";
 	            //System.out.println("http://"+wa[i]);	
 	            //java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(java.util.logging.Level.OFF);
 	            
@@ -78,9 +125,11 @@ public class GetURLContent
 				try 
 				{
 					//page = webClient.getPage("http://"+wa[1]);
-					page = webClient.getPage("http://youtube.com");
+					page = webClient.getPage("http://facebook.com");
 					
 					final String pageAsXml = page.asXml();
+					final String pageAsText = page.asText();
+					inline2external(pageAsXml, page_title);
 					BufferedWriter out = new BufferedWriter(new FileWriter(file));  
 			    	out.write(pageAsXml);
 			    	out.close();
@@ -89,13 +138,9 @@ public class GetURLContent
 					
 					// extract inline script
 					System.out.println("~~~~~~~~~ " + wa[1]);
+					
 					extractScript(page);
 					
-					
-					//System.out.println(content);
-					//write the html code into txt file
-					//writer.println(wa[0]+","+wa[1]);
-					//writer.println(content);
 				} catch (FailingHttpStatusCodeException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
