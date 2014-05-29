@@ -41,31 +41,64 @@ public class GetURLContent
 		Document doc = Jsoup.parse(html);
 		//System.out.println(doc);
 		//doc.select("[onclick]").attr("id", "asdf");
+		
+		// locate external js file
+		Elements external_scripts = doc.select("script[src]");
+		for (Element x : external_scripts)
+		{
+			// extract js path
+			System.out.println(x.attr("src"));
+		}
+		
+		// delete external script code
+		Elements scripts = doc.select("script").not("script[src]");
+		for (Element y : scripts)
+		{
+			//System.out.println(y);
+		}
+		scripts2Js(webpage, scripts);
+		
 		Elements script_src = doc.select("[onclick]");
 		int count = 0;
 		for (Element x : script_src)
 		{
 			// add string type id to onclick
 			x.attr("id", String.valueOf(count));
-			System.out.println(x);
+			//System.out.println(x);
 			count++;
 		}
 		
-		System.out.println(count);
-		System.out.println(doc);
+		//System.out.println(count);
+		//System.out.println(doc);
 		// write html into a new file
 		html_out.write(doc.toString());
 		html_out.close();
 	}
 	
-	public void writeJs(String webpage, String func) throws IOException
+	// script tagged with <script> ... </script>
+	// directly write it into the js file
+	public void scripts2Js(String webpage, Elements func) throws IOException
 	{
 		File js_file = new File(webpage.trim() + "_external.js");
-		BufferedWriter js_out = new BufferedWriter(new FileWriter(js_file));
+		// add true to enable append content to the file
+		BufferedWriter js_out = new BufferedWriter(new FileWriter(js_file, true));
 		if (!js_file.exists()) 
 		{
 			js_file.createNewFile();
 		}
+		for (Element x : func)
+		{
+			System.out.println(x);
+			//js_out.write(func.toString());
+		}
+		js_out.write(func.toString());
+		js_out.close();
+	}
+	
+	// inline script, need to add function to wrap
+	public void inline2Js()
+	{
+		
 	}
 	
 	public void extractScript(HtmlPage page_content)
