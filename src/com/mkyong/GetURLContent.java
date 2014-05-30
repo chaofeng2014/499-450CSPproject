@@ -30,7 +30,6 @@ public class GetURLContent
 	public void inline2external(String html, String webpage) throws IOException
 	{
 		// make js and html files
-		
 		File html_file = new File("new_" + webpage.trim() + ".html");
 		BufferedWriter html_out = new BufferedWriter(new FileWriter(html_file));
 		if (!html_file.exists()) 
@@ -61,29 +60,30 @@ public class GetURLContent
 		Elements scripts = doc.select("script").not("script[src]");
 		for (Element y : scripts)
 		{
-			//System.out.println(y);
+			System.out.println(y);
+			// delete <script>...</script> in html
 			y.remove();
 		}
 		scripts2Js(webpage, scripts);
 		
 		Elements script_src = doc.select("[onclick]");
-		int count = 0;
+		int onclick_count = 0;
 		for (Element x : script_src)
 		{
 			// add string type id to onclick
-			x.attr("id", String.valueOf(count));
+			x.attr("id", String.valueOf(onclick_count));
 			String function_content = x.attr("onclick");
 			System.out.println(function_content);
-			inline2Js(webpage, count, function_content);
+			inline2Js(webpage, onclick_count, function_content);
 			// delete onclick attribute
 			x.removeAttr("onclick");
 			//System.out.println(x);
-			count++;
+			onclick_count++;
 		}
+		//doc.head().appendText("<script src=\"" + webpage + "_external.js></script>");
 		
 		addExternalJs(doc, webpage);
 		//System.out.println(count);
-		System.out.println(doc);
 		// write html into a new file
 		html_out.write(doc.toString());
 		html_out.close();
@@ -91,7 +91,11 @@ public class GetURLContent
 	
 	public void addExternalJs(Document docs, String webpage)
 	{
-		docs.select("body").first().append("<script src=\"" + webpage + "_external.js></script>");
+		docs.body().appendElement("script");
+		System.out.println(docs.body().children().first().lastElementSibling());
+		Element new_script = docs.body().children().first().lastElementSibling();
+		new_script.attr("src", webpage + "_external.js");
+		System.out.println(docs);
 	}
 	
 	// script tagged with <script> ... </script>
