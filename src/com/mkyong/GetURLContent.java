@@ -38,7 +38,14 @@ public class GetURLContent
 			html_file.createNewFile();
 		}
 		
-		Document doc = Jsoup.parse(html);
+		// Jsoup parse link
+		//Document doc = Jsoup.parse(html);
+		
+		// for test local html file
+		File input = new File("./test/index.html");
+		Document doc = Jsoup.parse(input, "UTF-8");
+		
+		
 		//System.out.println(doc);
 		//doc.select("[onclick]").attr("id", "asdf");
 		
@@ -55,6 +62,7 @@ public class GetURLContent
 		for (Element y : scripts)
 		{
 			//System.out.println(y);
+			y.remove();
 		}
 		scripts2Js(webpage, scripts);
 		
@@ -64,15 +72,26 @@ public class GetURLContent
 		{
 			// add string type id to onclick
 			x.attr("id", String.valueOf(count));
+			String function_content = x.attr("onclick");
+			System.out.println(function_content);
+			inline2Js(webpage, count, function_content);
+			// delete onclick attribute
+			x.removeAttr("onclick");
 			//System.out.println(x);
 			count++;
 		}
 		
+		addExternalJs(doc, webpage);
 		//System.out.println(count);
-		//System.out.println(doc);
+		System.out.println(doc);
 		// write html into a new file
 		html_out.write(doc.toString());
 		html_out.close();
+	}
+	
+	public void addExternalJs(Document docs, String webpage)
+	{
+		docs.select("body").first().append("<script src=\"" + webpage + "_external.js></script>");
 	}
 	
 	// script tagged with <script> ... </script>
@@ -89,7 +108,7 @@ public class GetURLContent
 		for (Element x : func)
 		{
 			// get the content within <script>...</script>
-			System.out.println(x.data());
+			//System.out.println(x.data());
 			js_out.write(x.data().toString());
 			//js_out.write(func.toString());
 		}
@@ -97,9 +116,20 @@ public class GetURLContent
 	}
 	
 	// inline script, need to add function to wrap
-	public void inline2Js()
+	public void inline2Js(String webpage, int count, String f_content) throws IOException
 	{
-		
+		File js_file = new File(webpage.trim() + "_external.js");
+		// add true to enable append content to the file
+		BufferedWriter js_out = new BufferedWriter(new FileWriter(js_file, true));
+		if (!js_file.exists()) 
+		{
+			js_file.createNewFile();
+		}
+		js_out.write("\r\n");
+		js_out.write("var element_" + count + " = document.getElementById(" + count + ");");
+		js_out.write("\r\n");
+		js_out.write("element_" + count + ".addEventListener(\"click\", function(){" + f_content + "}, false);" );
+		js_out.close();
 	}
 	
 	public void extractScript(HtmlPage page_content)
@@ -147,7 +177,7 @@ public class GetURLContent
 	            sb.append(System.lineSeparator());
 	            //System.out.println("reading: "+line);
 	            String[] wa=line.split(",");
-	            String page_title = "facebook";
+	            String page_title = "index";
 	            //System.out.println("http://"+wa[i]);	
 	            //java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(java.util.logging.Level.OFF);
 	            
@@ -160,9 +190,11 @@ public class GetURLContent
 				{
 					//page = webClient.getPage("http://"+wa[1]);
 					page = webClient.getPage("http://facebook.com");
-					
+				
 					final String pageAsXml = page.asXml();
 					final String pageAsText = page.asText();
+					
+					
 					inline2external(pageAsXml, page_title);
 					BufferedWriter out = new BufferedWriter(new FileWriter(file));  
 			    	out.write(pageAsXml);
