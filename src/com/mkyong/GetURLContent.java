@@ -66,28 +66,77 @@ public class GetURLContent
 		}
 		scripts2Js(webpage, scripts);
 		
-		Elements script_src = doc.select("[onclick]");
-		int onclick_count = 0;
-		for (Element x : script_src)
-		{
-			// add string type id to onclick
-			x.attr("id", String.valueOf(onclick_count));
-			String function_content = x.attr("onclick");
-			System.out.println(function_content);
-			inline2Js(webpage, onclick_count, function_content);
-			// delete onclick attribute
-			x.removeAttr("onclick");
-			//System.out.println(x);
-			onclick_count++;
-		}
-		//doc.head().appendText("<script src=\"" + webpage + "_external.js></script>");
+		String[] script_directive = {
+    			// Mouse Events
+    			"onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup", 
+    			// Keyboard Events
+    			"onkeydown", "onkeypress", "onkeyup", 
+    			// Frame/Object Events
+    			"onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
+    			// Form Events
+    			"onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"};
+		
+		Elements script_src = doc.select("[" + script_directive[0] +"]");
+		
+		inline2Js2(script_src, webpage, script_directive[0]);
+		
+//		int onclick_count = 0;
+//		for (Element x : script_src)
+//		{
+//			// add string type id to onclick
+//			x.attr("id", String.valueOf(onclick_count));
+//			String function_content = x.attr("onclick");
+//			System.out.println(function_content);
+//			inline2Js(webpage, onclick_count, function_content);
+//			// delete onclick attribute
+//			x.removeAttr("onclick");
+//			//System.out.println(x);
+//			onclick_count++;
+//		}
 		
 		addExternalJs(doc, webpage);
-		//System.out.println(count);
 		// write html into a new file
 		html_out.write(doc.toString());
 		html_out.close();
 	}
+	
+	public void inline2Js2(Elements ele, String webpage, String directive) throws IOException
+	{
+		File js_file = new File(webpage.trim() + "_external.js");
+		// add true to enable append content to the file
+		BufferedWriter js_out = new BufferedWriter(new FileWriter(js_file, true));
+		if (!js_file.exists()) 
+		{
+			js_file.createNewFile();
+		}
+		int count = 0;
+		String js_directive = directive.substring(2);
+		System.out.println(js_directive);
+		for (Element x : ele)
+		{
+			// add id check, if exists then use it. otherwise create a new one
+			String ele_id = "";
+			ele_id = x.id();
+			if (ele_id == "")
+			{
+				x.attr("id", String.valueOf(count));
+				ele_id = String.valueOf(count);
+			}
+			System.out.println(ele_id);
+			String function_content = x.attr("onclick");
+			System.out.println(function_content);
+			//inline2Js(webpage, count, function_content);
+			// delete onclick attribute
+			x.removeAttr("onclick");
+			js_out.write("\r\n");
+			js_out.write("var element_" + ele_id + " = document.getElementById(\"" + ele_id + "\");");
+			js_out.write("\r\n");
+			js_out.write("element_" + ele_id + ".addEventListener(\""+ js_directive +"\", function(){" + function_content + "}, false);" );
+			count++;
+		}
+		js_out.close();
+	}
+	
 	
 	public void addExternalJs(Document docs, String webpage)
 	{
@@ -96,6 +145,7 @@ public class GetURLContent
 		Element new_script = docs.body().children().first().lastElementSibling();
 		new_script.attr("src", webpage + "_external.js");
 		System.out.println(docs);
+		
 	}
 	
 	// script tagged with <script> ... </script>
