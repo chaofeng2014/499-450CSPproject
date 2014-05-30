@@ -88,10 +88,11 @@ public class GetURLContent
 		}
 		for (Element x : func)
 		{
-			System.out.println(x);
+			// get the content within <script>...</script>
+			System.out.println(x.data());
+			js_out.write(x.data().toString());
 			//js_out.write(func.toString());
 		}
-		js_out.write(func.toString());
 		js_out.close();
 	}
 	
