@@ -1,0 +1,1 @@
+(function(n,t,i){var u,e,f,r;n&&Identity&&(u=Identity.popupLoginUrls)&&(e=u.WindowsLiveId)&&(f=Identity.wlProfile)&&f()==null&&(r=_d.createElement("iframe"),r.style.display="none",r.src=e+"&checkda=1",_d.body.appendChild(r),i&&t&&t("WLS","TS",i,0,"/"))})(sj_evt,sj_cook.set,wlc_t)

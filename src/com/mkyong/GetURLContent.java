@@ -41,6 +41,7 @@ public class GetURLContent
 		//Document doc = Jsoup.parse(html);
 		
 		// for test local html file
+		//File input = new File("./bing_files/bing.html");
 		File input = new File("./test/index.html");
 		Document doc = Jsoup.parse(input, "UTF-8");
 		
@@ -145,7 +146,6 @@ public class GetURLContent
 		Element new_script = docs.body().children().first().lastElementSibling();
 		new_script.attr("src", webpage + "_external.js");
 		System.out.println(docs);
-		
 	}
 	
 	// script tagged with <script> ... </script>
@@ -231,9 +231,9 @@ public class GetURLContent
 	            sb.append(System.lineSeparator());
 	            //System.out.println("reading: "+line);
 	            String[] wa=line.split(",");
+	            
+	            //String page_title = "bing";
 	            String page_title = "index";
-	            //System.out.println("http://"+wa[i]);	
-	            //java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(java.util.logging.Level.OFF);
 	            
 	            final WebClient webClient = new WebClient(BrowserVersion.CHROME);		    
 	            //WebClient webClient = new WebClient();
