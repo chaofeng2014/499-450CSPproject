@@ -1,0 +1,3 @@
+myfunction1()
+myfunction2()
+myfunction3()

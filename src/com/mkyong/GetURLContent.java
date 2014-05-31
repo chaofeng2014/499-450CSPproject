@@ -27,6 +27,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class GetURLContent 
 {
+	ArrayList<String> policys = new ArrayList();
 	public void inline2external(String html, String webpage) throws IOException
 	{
 		// make js and html files
@@ -42,6 +43,7 @@ public class GetURLContent
 		
 		// for test local html file
 		//File input = new File("./bing_files/bing.html");
+		
 		File input = new File("./test/index.html");
 		Document doc = Jsoup.parse(input, "UTF-8");
 		
@@ -80,6 +82,7 @@ public class GetURLContent
 		Elements script_src = doc.select("[" + script_directive[0] +"]");
 		
 		inline2Js2(script_src, webpage, script_directive[0]);
+		addToPolicy(webpage, script_directive[0]);
 		
 //		int onclick_count = 0;
 //		for (Element x : script_src)
@@ -99,6 +102,24 @@ public class GetURLContent
 		// write html into a new file
 		html_out.write(doc.toString());
 		html_out.close();
+	}
+	
+	public void addToPolicy(String webpage, String directive) throws IOException
+	{
+		File policy_file = new File(webpage.trim() + "_policy.txt");
+		// add true to enable append content to the file
+		BufferedWriter policy_out = new BufferedWriter(new FileWriter(policy_file, true));
+		if (!policy_file.exists()) 
+		{
+			policy_file.createNewFile();
+		}
+		for (String x : policys)
+		{
+			System.out.println("here~~~~~~~~~~~~~" + x);
+			policy_out.write(x + "\r\n");
+			
+		}
+		policy_out.close();
 	}
 	
 	public void inline2Js2(Elements ele, String webpage, String directive) throws IOException
@@ -125,6 +146,7 @@ public class GetURLContent
 			}
 			System.out.println(ele_id);
 			String function_content = x.attr("onclick");
+			policys.add(function_content);
 			System.out.println(function_content);
 			//inline2Js(webpage, count, function_content);
 			// delete onclick attribute
