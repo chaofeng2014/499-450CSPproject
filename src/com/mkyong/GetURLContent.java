@@ -59,6 +59,8 @@ public class GetURLContent
 			System.out.println(x.attr("src"));
 		}
 		
+		generateCSPHeader(external_scripts, webpage);
+		
 		// delete external script code
 		Elements scripts = doc.select("script").not("script[src]");
 		for (Element y : scripts)
@@ -102,6 +104,22 @@ public class GetURLContent
 		// write html into a new file
 		html_out.write(doc.toString());
 		html_out.close();
+	}
+	
+	public String generateCSPHeader(Elements ele, String web)
+	{
+		System.out.println(web);
+		String CSPHeader = "Content-Security-Policy: default-src 'self'; script-src ";
+		for (Element y : ele)
+		{
+			//System.out.println(y);
+			CSPHeader = CSPHeader + y.attr("src") + " ";
+		}
+		// delete the last space 
+		CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
+		CSPHeader = CSPHeader + "; ";
+		System.out.println(CSPHeader);
+		return CSPHeader;
 	}
 	
 	public void addToPolicy(String webpage, String directive) throws IOException
