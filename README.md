@@ -1,3 +1,4 @@
+## Introduction
 This program is mainly about moving all inline scripts in one HTML to an external JavaScript file and link the external js file to the HTML file. Besides, it will also generate a CSP header as a string. This program will take a HTML file as input, and output a new HTML file which has no inline scirpts (new_WebName.html), one external js file (WebName_external.js), and one txt file which stores inline scripts policy (WebName_policy.txt).
 
 Our goal is to make this program can automatically deal with any HTML file from Alexa Top. The source data of Alexa top websites is in the srouce folder.
@@ -21,5 +22,5 @@ Our goal is to make this program can automatically deal with any HTML file from 
 * [Yuchao Zhou](https://github.com/yuchaozh) - Computer Science, master, McCormick School of Engineering
 
 ## Acknowledgements
-* Professor [Yan Chen](http://www.cs.northwestern.edu/~ychen/)
-* Mentor [Yinzhi Cao](http://www.cs.northwestern.edu/~yca179/)
+* Professor: [Yan Chen](http://www.cs.northwestern.edu/~ychen/)
+* Mentor: [Yinzhi Cao](http://www.cs.northwestern.edu/~yca179/)
