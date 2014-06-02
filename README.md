@@ -5,12 +5,10 @@ Our goal is to make this program can automatically deal with any HTML file from 
 
 ## Installation and Usage
 
+  Download external jar package [HtmlUnit](http://htmlunit.sourceforge.net/); [Jsoup](http://jsoup.org/) first
+	
     Download source code
     $ git clone git@github.com:chaofeng2014/499-450CSPproject.git
-
-    Download external jar package
-	[HtmlUnit](http://htmlunit.sourceforge.net/)
-	[Jsoup](http://jsoup.org/)
 
 	Configure Build Path
 	Right Click on your project -> Build Path -> Configure Build Path... -> Add External JARs
