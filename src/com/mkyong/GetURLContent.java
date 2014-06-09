@@ -101,12 +101,13 @@ public class GetURLContent
 	
 	public String generateCSPHeader(Elements ele, String web, Elements ele_css)
 	{
-		String CSPHeader = "Content-Security-Policy: default-src 'self'; script-src ";
+		String CSPHeader = "Content-Security-Policy: default-src 'self'; script-src 'slef' ";
 		for (Element y : ele)
 		{
 			//System.out.println(y);
 			CSPHeader = CSPHeader + y.attr("src") + " ";
 		}
+		CSPHeader = CSPHeader + web + "_external.js ";
 		// delete the last space 
 		CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
 		CSPHeader = CSPHeader + "; ";
