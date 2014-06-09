@@ -48,7 +48,6 @@ public class GetURLContent
 		
 		Document doc = Jsoup.parse(input, "UTF-8");
 
-		
 		System.out.println("src scripts: ");
 		// locate external js file
 		Elements external_scripts = doc.select("script[src]");
@@ -58,7 +57,14 @@ public class GetURLContent
 			System.out.println(x.attr("src"));
 		}
 		
-		generateCSPHeader(external_scripts, webpage);
+		// locate external css file
+		Elements external_css = doc.select("link[href]");
+		for (Element y : external_css)
+		{
+			System.out.println(y.attr("href"));
+		}
+		
+		generateCSPHeader(external_scripts, webpage, external_css);
 		
 		// delete external script code
 		Elements scripts = doc.select("script").not("script[src]");
@@ -84,8 +90,8 @@ public class GetURLContent
 		{
 			Elements script_src = doc.select("[" + script_directive[i] +"]");
 			inline2Js2(script_src, webpage, script_directive[i]);
-			addToPolicy(webpage, script_directive[i]);	
 		}
+		addToPolicy(webpage);	
 		addExternalJs(doc, webpage);
 		
 		// write html into a new file
@@ -93,7 +99,7 @@ public class GetURLContent
 		html_out.close();
 	}
 	
-	public String generateCSPHeader(Elements ele, String web)
+	public String generateCSPHeader(Elements ele, String web, Elements ele_css)
 	{
 		String CSPHeader = "Content-Security-Policy: default-src 'self'; script-src ";
 		for (Element y : ele)
@@ -104,11 +110,18 @@ public class GetURLContent
 		// delete the last space 
 		CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
 		CSPHeader = CSPHeader + "; ";
+		CSPHeader = CSPHeader + "style-src 'self' ";
+		for (Element x : ele_css)
+		{
+			CSPHeader = CSPHeader + x.attr("href") + " ";
+		}
+		CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
+		CSPHeader = CSPHeader + "; ";
 		System.out.println("CSP header: \n" + CSPHeader);
 		return CSPHeader;
 	}
 	
-	public void addToPolicy(String webpage, String directive) throws IOException
+	public void addToPolicy(String webpage) throws IOException
 	{
 		File policy_file = new File(webpage.trim() + "_policy.txt");
 		// add true to enable append content to the file
