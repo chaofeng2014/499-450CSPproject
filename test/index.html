@@ -23,6 +23,19 @@
             alert("button3");
         }
     </script>
+    <script>
+    function myfunction4()
+        {
+            alert("form onsubmit4!");
+        }
+    </script>
+    <script>
+    function myfunction5()
+        {
+            alert("form onsubmit5!");
+        }
+    </script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -35,6 +48,16 @@
     <button id="button1" class="button1" onclick="myfunction1()">button1</button>
     <button  class="button2" onclick="myfunction2()">button2</button>
     <button id="button3" class="button3" onclick="myfunction3()">button3</button>
+    <form action="#" method="get" onsubmit="myfunction4()">
+    <p>First name: <input type="text" name="fname" /></p>
+    <p>Last name: <input type="text" name="lname" /></p>
+    <input type="submit" value="Submit" />
+    </form>
+    <form id="form1" action="#1" method="get" onsubmit="myfunction5()">
+    <p>First name: <input type="text" name="fname" /></p>
+    <p>Last name: <input type="text" name="lname" /></p>
+    <input type="submit" value="Submit" />
+    </form>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>

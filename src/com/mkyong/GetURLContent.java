@@ -27,6 +27,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class GetURLContent 
 {
+	public int count = 0;
 	ArrayList<String> policys = new ArrayList();
 	public void inline2external(String html, String webpage) throws IOException
 	{
@@ -43,14 +44,12 @@ public class GetURLContent
 		
 		// for test local html file
 		//File input = new File("./bing_files/bing.html");
-		
 		File input = new File("./test/index.html");
+		
 		Document doc = Jsoup.parse(input, "UTF-8");
+
 		
-		
-		//System.out.println(doc);
-		//doc.select("[onclick]").attr("id", "asdf");
-		
+		System.out.println("src scripts: ");
 		// locate external js file
 		Elements external_scripts = doc.select("script[src]");
 		for (Element x : external_scripts)
@@ -81,26 +80,14 @@ public class GetURLContent
     			// Form Events
     			"onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"};
 		
-		Elements script_src = doc.select("[" + script_directive[0] +"]");
-		
-		inline2Js2(script_src, webpage, script_directive[0]);
-		addToPolicy(webpage, script_directive[0]);
-		
-//		int onclick_count = 0;
-//		for (Element x : script_src)
-//		{
-//			// add string type id to onclick
-//			x.attr("id", String.valueOf(onclick_count));
-//			String function_content = x.attr("onclick");
-//			System.out.println(function_content);
-//			inline2Js(webpage, onclick_count, function_content);
-//			// delete onclick attribute
-//			x.removeAttr("onclick");
-//			//System.out.println(x);
-//			onclick_count++;
-//		}
-		
+		for (int i = 0; i < script_directive.length; i++)
+		{
+			Elements script_src = doc.select("[" + script_directive[i] +"]");
+			inline2Js2(script_src, webpage, script_directive[i]);
+			addToPolicy(webpage, script_directive[i]);	
+		}
 		addExternalJs(doc, webpage);
+		
 		// write html into a new file
 		html_out.write(doc.toString());
 		html_out.close();
@@ -108,7 +95,6 @@ public class GetURLContent
 	
 	public String generateCSPHeader(Elements ele, String web)
 	{
-		System.out.println(web);
 		String CSPHeader = "Content-Security-Policy: default-src 'self'; script-src ";
 		for (Element y : ele)
 		{
@@ -118,7 +104,7 @@ public class GetURLContent
 		// delete the last space 
 		CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
 		CSPHeader = CSPHeader + "; ";
-		System.out.println(CSPHeader);
+		System.out.println("CSP header: \n" + CSPHeader);
 		return CSPHeader;
 	}
 	
@@ -133,7 +119,6 @@ public class GetURLContent
 		}
 		for (String x : policys)
 		{
-			System.out.println("here~~~~~~~~~~~~~" + x);
 			policy_out.write(x + "\r\n");
 			
 		}
@@ -149,9 +134,10 @@ public class GetURLContent
 		{
 			js_file.createNewFile();
 		}
-		int count = 0;
+		
+		// delete front two bits
 		String js_directive = directive.substring(2);
-		System.out.println(js_directive);
+		//System.out.println(js_directive);
 		for (Element x : ele)
 		{
 			// add id check, if exists then use it. otherwise create a new one
@@ -162,13 +148,13 @@ public class GetURLContent
 				x.attr("id", String.valueOf(count));
 				ele_id = String.valueOf(count);
 			}
-			System.out.println(ele_id);
-			String function_content = x.attr("onclick");
+			//System.out.println(ele_id);
+			String function_content = x.attr(directive);
 			policys.add(function_content);
-			System.out.println(function_content);
+			//System.out.println(function_content);
 			//inline2Js(webpage, count, function_content);
 			// delete onclick attribute
-			x.removeAttr("onclick");
+			x.removeAttr(directive);
 			js_out.write("\r\n");
 			js_out.write("var element_" + ele_id + " = document.getElementById(\"" + ele_id + "\");");
 			js_out.write("\r\n");
@@ -226,41 +212,12 @@ public class GetURLContent
 		js_out.close();
 	}
 	
-	public void extractScript(HtmlPage page_content)
-	{
-		final ArrayList<?> script_part = (ArrayList<?>) page_content.getByXPath("//script");
-
-    	String[] script_directive = {
-    			// Mouse Events
-    			"onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup", 
-    			// Keyboard Events
-    			"onkeydown", "onkeypress", "onkeyup", 
-    			// Frame/Object Events
-    			"onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
-    			// Form Events
-    			"onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"};
-
-    	ArrayList inline_script = new ArrayList();
-    	inline_script.addAll(script_part);
-    	//inline_script.addAll(onclick_part);
-    	for (String x : script_directive)
-    	{
-    		final ArrayList<?> part = (ArrayList<?>) page_content.getByXPath("//@" + x);
-    		inline_script.addAll(part);
-    	}
-
-//    	for (int i = 0; i < inline_script.size(); i++)
-//    	{
-//    		System.out.println(inline_script.get(i));
-//    	}
-	}
-	
 	public void getHTML() throws IOException
 	{
 		File file = new File("facebook_test.txt");
         file.createNewFile();
 		//read the http address from the txt file
-		try(BufferedReader br = new BufferedReader(new FileReader("top10000.txt"))) 
+		try(BufferedReader br = new BufferedReader(new FileReader("./source/top10000.txt"))) 
 		{
 			StringBuilder sb = new StringBuilder();
 		    String line = br.readLine();
@@ -297,9 +254,7 @@ public class GetURLContent
 					WebResponse response = page.getWebResponse();
 					
 					// extract inline script
-					System.out.println("~~~~~~~~~ " + wa[1]);
-					
-					extractScript(page);
+					//System.out.println("~~~~~~~~~ " + wa[1]);
 					
 				} catch (FailingHttpStatusCodeException e) {
 					// TODO Auto-generated catch block
