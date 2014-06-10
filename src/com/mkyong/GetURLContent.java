@@ -228,8 +228,6 @@ public class GetURLContent
 	
 	public void getHTML() throws IOException
 	{
-		File file = new File("facebook_test.txt");
-        file.createNewFile();
 		//read the http address from the txt file
 		try(BufferedReader br = new BufferedReader(new FileReader("./source/top10000.txt"))) 
 		{
@@ -261,9 +259,6 @@ public class GetURLContent
 					
 					
 					inline2external(pageAsXml, page_title);
-					BufferedWriter out = new BufferedWriter(new FileWriter(file));  
-			    	out.write(pageAsXml);
-			    	out.close();
 			    	
 					WebResponse response = page.getWebResponse();
 					
