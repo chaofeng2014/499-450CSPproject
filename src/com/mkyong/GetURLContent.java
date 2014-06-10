@@ -226,65 +226,10 @@ public class GetURLContent
 		js_out.close();
 	}
 	
-	public void getHTML() throws IOException
-	{
-		//read the http address from the txt file
-		try(BufferedReader br = new BufferedReader(new FileReader("./source/top10000.txt"))) 
-		{
-			StringBuilder sb = new StringBuilder();
-		    String line = br.readLine();
-		    //while (line != null) {
-		    for(int i = 1; i < 2; i++)
-		    {
-	            sb.append(line);
-	            sb.append(System.lineSeparator());
-	            //System.out.println("reading: "+line);
-	            String[] wa=line.split(",");
-	            
-	            //String page_title = "bing";
-	            String page_title = "index";
-	            
-	            final WebClient webClient = new WebClient(BrowserVersion.CHROME);		    
-	            //WebClient webClient = new WebClient();
-	            webClient.getOptions().setJavaScriptEnabled(false);
-	            HtmlPage page;
-	            //get html
-				try 
-				{
-					//page = webClient.getPage("http://"+wa[1]);
-					page = webClient.getPage("http://facebook.com");
-				
-					final String pageAsXml = page.asXml();
-					final String pageAsText = page.asText();
-					
-					
-					inline2external(pageAsXml, page_title);
-			    	
-					WebResponse response = page.getWebResponse();
-					
-					// extract inline script
-					//System.out.println("~~~~~~~~~ " + wa[1]);
-					
-				} catch (FailingHttpStatusCodeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (MalformedURLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}finally
-				{		  
-					webClient.closeAllWindows();
-				}
-	        }		      		
-		}
-	}
 	  //static String webadd;
 	public static void main(String[] args) throws FileNotFoundException, IOException 
 	{
 		GetURLContent getURL = new GetURLContent();
-		getURL.getHTML();
+		getURL.inline2external("", "index");
 	}
 }
